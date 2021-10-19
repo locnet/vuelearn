@@ -1,0 +1,168 @@
+
+
+1. INSTALACION VUE EN LINUX
+
+comando: npm install -g @vue/cli 
+
+
+2. CREACION DE NUEVO PROYECTO:
+
+comando: vue create my-project
+
+en main.js tenemos que tener:
+
+************************************
+
+import { createApp } from 'vue';
+
+import App from './App.vue';
+
+const app = createApp(App);
+
+app.mount('#app');
+
+
+IMPORTANTE: App.vue es el "punto de entrada" a nuestra aplicacion, si no lo tenemos este archivo hay que crearlo.
+Tipicamente App.vue tiene la siguiente arquitectura:
+
+<template>
+	<h2>Hello World</h2>
+</template>
+
+<script> 
+	export default {
+		data() {
+			return {
+
+			}
+		}
+	}
+
+</script>
+
+**************************************
+
+
+3. INTERACTUANDO CON EL DOM
+
+para interactuar con vue en el codigo html utilizamos la interpolacion, con doble corchete {{ }}, 
+ej:<p>{{ myVueVariable }}</p>
+
+si lo utilizamos como propriedad de alguna etiqueta html, se usa din corchetes, 
+ej: <button @click="myVueFunction()">my button</button>
+
+conecta cualquier elemento con v-bind: , se puede utilizar como v-bind:style (o directamente :style), en el caso de v-bind:click utilizamos directamente @click.
+
+Se puede activar/desactivar atributos facilmente:
+
+- <button :disabled="isDisabled">my button</button>
+- <p :class="{myClass: isActive}"> my paragraph</p>
+- <p :style="{color: activeColor}"> my paragraph </p>
+
+Submit prevent defalut behavior:
+- <form @submit.prevent="addProduct">....
+
+Only trigger once:
+- <img @mouseover.once="showImage">...
+
+Keyboard entry example:
+- <input @keyup.enter="submit">...
+
+Call onCopy when control-c is pressed:
+- <input @keyup.ctrl.c="onCopy">
+
+
+4. COMPONENTS
+
+Primero hay que importarlos en el main.js:   import MyComponent from './components_folder/MyComponent.vue';
+Luego declararlos: app.component('my-component', MyComponent);
+Por ultimo lo utilizamos en nuestra aplicacion: <my-component></my-component>
+
+Pasamos datos desde "parent" hacia el componente con props:
+
+<my-component name="adrian" surname="cojocaru" admin="0"></my-component>
+
+ATENCION: las props son unidireccionales, no se pueden cambiar en el componente, solo en el parent.
+Hay diferentes formas de saltarse este impedimiento, como cambiar la prop en el parent, o declarar (en el 
+component) una variable y asignarle el valor de la "prop"
+
+Accesamos las propiedades en el componente, en forma simple, con un array:
+
+		export default {
+
+			props: ['name', 'surname'],
+			
+			data() {
+				return {}
+			}
+		}
+
+o, de forma mas compleja, con un objeto (de esta manera podemos validar la prop)
+
+export default {
+	
+	props: {
+		name: {
+			type: String,
+			required: true
+		},
+		surname: {
+			type: String,
+			required: false
+		},
+		admin: {
+			type: String,
+
+			// tambien se puede crear un validador personalizado
+			validator: function(value) {
+				return value === '1' ? 'admin' : 'user';
+			}
+		}
+	}
+}
+
+Para hacer las propiedades dinamicas utilizamos v-bind:myProp o, forma corta, :myProp, ej:
+
+<my-component :myProp="myFunction()"></my-component>
+
+
+
+5. COMUNICACION BIDIRECCIONAL (PADRE->COMPONENT->PADRE)
+
+
+Para mandar datos de child al parent, utilizamos los eventos:
+
+el nombre del evento se escribe, por convencion, con quion medio 
+
+this.$emit('mi-evento', firstParam, secondParam, thirdParam);
+
+En el parent podemos captar y usar el evento directamente, de manera similar a las props del mismo component
+de esta manera: @mi-evento="methodoParaEscucharEvento". 
+IMPORTANTE: cuando emitimos un evento podemos añadir los parametros que queramos, estos mismos parametros los
+encontramos cuando captamos el eventon, en la misma orden.
+
+<my-component   propExample="my prop"
+				@mi-evento="methodoParaEscucharEvento">
+</my-component>
+
+La funcion para escuchar el evento seria:
+
+methodoParaEscucharEvento(firstParam, secondParam, thirdParam) {}
+
+
+Los eventos $emits de un componente se pueden agrupar de manera igual que las props, en un array o en un objeto:
+
+emits: ['my-first-event','my-second-event']
+
+or
+
+emits: {'my-event': function(data) {
+
+	}
+}
+
+
+
+
+
+
